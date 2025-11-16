@@ -1,0 +1,352 @@
+---
+title: "Group 2 - Final Code"
+output: html_document
+---
+
+
+# install.packages("dplyr") 
+ library(dplyr)
+ library(readxl)
+Data_Collected <- read_excel("Data Collected.xlsm", 
+    sheet = "Data Sheet")
+View(Data_Collected)
+
+
+
+
+
+# #Data Cleaning 
+
+# Dropping Columns not needed
+Data_Collected_New <- Data_Collected[!names(Data_Collected) %in% c("Do you consent to participate in this survey?","What year did you graduate from LUMS?","Did you intend to complete this degree when you first joined LUMS?","What was the reason?","Are they (jobs, part-time jobs) related to your current job (if you are employed)?","Do you have you a family business?","Are you working in your preferred job market? (did you want to work in this sector?)","Which company, do you work for?","What is your job? (your position or a short job description)","Why was there a delay?","Please specify (name of the postgraduate degree and the institution)","What is you age?","What is your hometown?","Would you be willing to give an interview for this research?","What is your name and roll number?","How do you wish to be contacted? (LUMS email address, or contact number) Please provide the information such as contact number if you wish to be contacted there.","Submitted At" ,"Token","What is your gender?" )]
+
+# Filter rows of people unemployed and wrong values
+Data_Collected_New <- Data_Collected_New[!Data_Collected_New$`Are you currently employed?` == "FALSE", ]
+Data_Collected_New <- Data_Collected_New[!Data_Collected_New$`What was your CGPA at the time of graduation?` >4, ]
+
+# Dropping Columns not needed
+
+Data_Collected_New <- Data_Collected_New[!names(Data_Collected_New) %in% c("Are you currently employed?")]
+
+# Change names of columns 
+
+Data_Collected_New <- rename(Data_Collected_New, "Major" = "What was your undergraduate degree/major?" )
+Data_Collected_New <- rename(Data_Collected_New, "CGPA" = "What was your CGPA at the time of graduation?" )
+Data_Collected_New <- rename(Data_Collected_New, "Employment during studies" =  "How many (if applicable) job(s)/part-time job(s) did you have?")
+Data_Collected_New <- rename(Data_Collected_New, "TA-ships" =  "Did you have any TA-ships during your undergraduate degree at LUMS?")
+Data_Collected_New <- rename(Data_Collected_New, "Type of work" = "Where are you working?")
+Data_Collected_New <- rename(Data_Collected_New, "Delay" = "Was there a time delay between your employment date and your graduation date?"  )
+Data_Collected_New <- rename(Data_Collected_New, "Income" = "What is your monthly income bracket?" )
+Data_Collected_New <- rename(Data_Collected_New, "Type of Education" = "What type of education did you complete before your undergraduate degree?" )
+Data_Collected_New <- rename(Data_Collected_New, "Family Background" = "How would you describe your family background?" )
+Data_Collected_New <- rename(Data_Collected_New, "Languages" =  "How many languages are you proficient in?")
+Data_Collected_New <- rename(Data_Collected_New, "Consistency" =  "Do you think that your degree and job are consistent? (for example an ACF major, working as an accountant)" )
+
+
+# Qualitative data to Quantitative data
+
+
+
+Data_Collected_New$`TA-ships`[Data_Collected_New$`TA-ships` == "TRUE"] <- 2
+Data_Collected_New$`TA-ships`[Data_Collected_New$`TA-ships` == "0"] <- 1
+
+Data_Collected_New$Delay[Data_Collected_New$Delay == "None"] <- 5
+Data_Collected_New$Delay[Data_Collected_New$Delay == "Less than a year"] <- 4
+Data_Collected_New$Delay[Data_Collected_New$Delay == "1 year"] <- 3
+Data_Collected_New$Delay[Data_Collected_New$Delay == "2 years"] <- 2
+Data_Collected_New$Delay[Data_Collected_New$Delay == "3 years"] <- 1
+Data_Collected_New$Delay[Data_Collected_New$Delay == "More than 3 years"] <- 0
+
+Data_Collected_New$`Family Background`[Data_Collected_New$`Family Background` == "Lower class"] <- 1
+Data_Collected_New$`Family Background`[Data_Collected_New$`Family Background` == "Lower-middle class"] <- 2
+Data_Collected_New$`Family Background`[Data_Collected_New$`Family Background` == "Middle class"] <- 3
+Data_Collected_New$`Family Background`[Data_Collected_New$`Family Background` == "Upper-middle class"] <- 4
+Data_Collected_New$`Family Background`[Data_Collected_New$`Family Background` == "Upper class"] <- 5
+Data_Collected_New$`Family Background`[Data_Collected_New$`Family Background` == "Elite class (1 percenters)"] <-  6
+
+Data_Collected_New$Income[Data_Collected_New$Income == "Currently not employed"] <- 0
+Data_Collected_New$Income[Data_Collected_New$Income == "< PKR 25,000"] <- 1
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 25,000 - PKR 50,000"] <- 2
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 50,000 - PKR 100,000"] <- 3
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 100,000 - PKR 150,000"] <- 4
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 150,000 - PKR 200,000"] <- 5
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 200,000 - PKR 250,000"] <- 6
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 250,000 - PKR 300,000"] <- 7
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 300,000 - PKR 350,000"] <- 8
+Data_Collected_New$Income[Data_Collected_New$Income == "PKR 350,000 - PKR 400,000"] <- 9
+Data_Collected_New$Income[Data_Collected_New$Income == "> PKR 400,000"] <- 10
+
+
+
+
+
+
+
+# Summary
+
+# Summary of Major
+
+Data_Collected_New$Major <- as.factor(Data_Collected_New$Major)
+summary(Data_Collected_New$Major)
+plot(Data_Collected_New$Major, xlim = c(0,9), ylim = c(0,50), xlab = "Major", ylab = "Frequency", main = "Type of Major", col = c("Blue", "Green", "Yellow", "cyan", "magenta","grey", "Pink","lightblue"))
+
+
+# Summary of CGPA
+
+summary(Data_Collected_New$CGPA)
+hist(Data_Collected_New$CGPA, main = "CGPA Chart", xlab = "CGPA", col = "dodgerblue3", labels = TRUE, density=c(30,10,20,35,15,25),angle=60)
+plot(Data_Collected_New$CGPA, ylab = "CGPA", col = "Blue", main = "CGPA Scatter plot")
+boxplot(Data_Collected_New$CGPA, ylab = "CGPA", col = "lightblue", main = "CGPA Box plot")
+
+
+# Summary of Employment during studies
+
+Data_Collected_New$`Employment during studies` <- as.numeric(Data_Collected_New$`Employment during studies`)
+summary(Data_Collected_New$`Employment during studies`)
+hist(Data_Collected_New$`Employment during studies`, xlab = "Number of employments", main ="Employments during studies ", col = "magenta",labels = TRUE, density=c(30,10,20,35,15,25),angle=60, ylim = c(0,60))
+plot(Data_Collected_New$`Employment during studies`, ylab = "Number of employments", main ="Employments during studies ", col = "Blue")
+
+
+# Summary of the number of TA-ships
+
+Data_Collected_New$`TA-ships` <- as.numeric(Data_Collected_New$`TA-ships`)
+summary(Data_Collected_New$`TA-ships`)
+hist(Data_Collected_New$`TA-ships`, xlab = "TA-ships", main ="TA-ship during studies ", col = "black",labels = TRUE, density=c(30,10,20,35,15,25),angle=60, ylim = c(0,100))
+plot(Data_Collected_New$`TA-ships`, ylab = "TA-ship", main ="TA-ships during studies ", col = "black")
+
+
+
+# Summary of type of work
+
+Data_Collected_New$`Type of work` <- as.factor(Data_Collected_New$`Type of work`)
+summary(Data_Collected_New$`Type of work`)
+plot(Data_Collected_New$`Type of work`, xlim = c(0,6), ylim = c(0,80), xlab = "Type of Work", ylab = "Frequency", main = "Type of Work Graph", col = "green", density=c(30,10,20,35,15),angle=60)
+
+
+# Summary of delay
+
+Data_Collected_New$Delay <- as.numeric(Data_Collected_New$Delay)
+summary(Data_Collected_New$Delay)
+hist(Data_Collected_New$Delay,xlab = "Delay", main = "Delay between job and graduation", col = "red",labels = TRUE, density=c(30,10,20,35,15,25),angle=60)
+plot(Data_Collected_New$Delay, col = "Blue", ylab = "Delay", main = "Delay between graduation and employment")
+boxplot(Data_Collected_New$Delay, col = "Blue", ylab = "Delay", main = "Delay between graduation and employment")
+
+# Summary of income bracket
+
+Data_Collected_New$Income <- as.numeric(Data_Collected_New$Income)
+summary(Data_Collected_New$Income)
+hist(Data_Collected_New$Income, xlab = "Income Bracket", main = "Income", col = "Blue",labels = TRUE, density=c(30,10,20,35,15,25),angle=60)
+legend("topleft", c("1 = Less than PKR 25,000","2 = PKR 25,000 - PKR 50,000", "3 = PKR 50,000 - PKR 100,000", "4 = PKR 100,000 - PKR 150,000", "5 = PKR 150,000 - PKR 200,000","6 = PKR 200,000 - PKR 250,000", "7 = PKR 250,000 - PKR 300,000", "8 = PKR 300,000 - PKR 350,000", "9 = PKR 350,000 - PKR 400,000", "10 = More than PKR 400,000"), cex = 0.6)
+plot(Data_Collected_New$Income, ylab = "Income Bracket", main = "Income", col = "Blue")
+
+
+# Summary of type of education
+
+Data_Collected_New$`Type of Education` <- as.factor(Data_Collected_New$`Type of Education`)
+summary(Data_Collected_New$`Type of Education`)
+plot(Data_Collected_New$`Type of Education`,xlab = "Type of education", main = "Type of education", col = c("cyan","magenta"), ylim = c(0,120))
+
+
+
+
+# Summary of family background
+
+Data_Collected_New$`Family Background` <- as.numeric(Data_Collected_New$`Family Background`)
+summary(Data_Collected_New$`Family Background`)
+hist(Data_Collected_New$`Family Background`,xlab = "Family background type", main = "Family background", col = "darkred", ylim = c(0,90),density=c(30,10,20,35,15),angle=60)
+legend("topleft", c("1 = Lower Class","2 = Lower-Middle Class", "3 = Middle Class","4 = Upper-Middle Class","5 = Upper Class", "6 = Elite Class (1-percenters)" ), cex = 0.8)
+plot(Data_Collected_New$`Family Background`, col = "Blue", ylab = "Family background type", main = "Family background")
+boxplot(Data_Collected_New$`Family Background`, col = "Blue", ylab = "Family background type", main = "Family background")
+
+
+# Summary of the number of languages spoken
+
+Data_Collected_New$Languages <- as.numeric(Data_Collected_New$Languages)
+summary(Data_Collected_New$Languages) 
+hist(Data_Collected_New$Languages,xlab = "Number of languages", main = "Languages spoken", col = "slateblue4",density=c(30,10,20,35,15),angle=60)
+plot(Data_Collected_New$Languages,ylab = "Number of languages", main = "Languages spoken", col = "Blue")
+
+# Summary of job-degree consistency 
+
+Data_Collected_New$Consistency <- as.factor(Data_Collected_New$Consistency)
+summary(Data_Collected_New$Consistency)                
+plot(Data_Collected_New$Consistency,xlab = "Consistency", ylab = "Frequency", main = "Consistency between job and degree", col = c("cyan","magenta"))        
+
+
+
+
+
+# Separating Consistent and Inconsistent data
+
+Incon_Data <- Data_Collected_New[!Data_Collected_New$Consistency == "Yes", ]
+Con_Data <- Data_Collected_New[!Data_Collected_New$Consistency == "No", ]
+
+
+
+
+
+
+
+
+
+# Consistent Data
+
+
+
+
+
+# CGPA with Income
+
+firstreg = lm(formula = Con_Data$Income ~ Con_Data$CGPA)
+summary(firstreg)
+cor(Con_Data$Income,Con_Data$CGPA)
+
+plot(Con_Data$Income ~ Con_Data$CGPA , main = "CGPA with income",ylab = "Monthly Income", xlab = "CGPA", col = "Blue")
+abline(firstreg)
+
+
+
+# Employment during studies with Income
+
+secreg = lm(formula = Con_Data$Income ~ Con_Data$`Employment during studies`)
+summary(secreg)
+cor(Con_Data$Income,Con_Data$`Employment during studies`)
+
+plot(Con_Data$Income ~ Con_Data$`Employment during studies` , main = "Employment during studies with Income",xlab = "Number of Employment during studies", ylab = "Monthly Income", col = "Blue")
+abline(secreg)
+
+# TA-ships with Income
+
+thirdreg = lm(formula =  Con_Data$Income ~ Con_Data$`TA-ships`)
+summary(thirdreg)
+cor(Con_Data$Income,Con_Data$`TA-ships`)
+
+plot(Con_Data$Income ~ Con_Data$`TA-ships`, main = "TA-ships with income",xlab = "TA-ships", ylab = "Monthly Income", col = "Blue")
+abline(secreg)
+
+
+# Delay with Income
+
+fourthreg = lm(formula =  Con_Data$Income ~ Con_Data$Delay)
+summary(fourthreg)
+cor(Con_Data$Income,Con_Data$Delay, use = "complete.obs")
+
+plot(Con_Data$Income ~ Con_Data$Delay, main = "Delay with income",xlab = "Delay", ylab = "Monthly Income", col = "Blue")
+abline(fourthreg)
+
+
+# Family background with income
+sevreg = lm(formula =  Con_Data$Income ~ Con_Data$`Family Background`)
+summary(sevreg)
+cor(Con_Data$Income,Con_Data$`Family Background`)
+
+plot(Con_Data$Income ~ Con_Data$`Family Background`, main = "Type of family background with income",xlab = "Family background", ylab = "Monthly Income", col = "Blue")
+abline(sevreg)
+
+# Languages with income
+
+eigreg = lm(formula =  Con_Data$Income ~ Con_Data$Languages)
+summary(eigreg)
+cor(Con_Data$Income,Con_Data$Languages)
+
+plot(Con_Data$Income ~ Con_Data$Languages, main = "Languages with income",xlab = "Number of Languages", ylab = "Monthly Income",  col = "Blue")
+abline(eigreg)
+
+# MultiRegression
+
+multireg = lm(formula = Con_Data$Income ~ Con_Data$CGPA + Con_Data$Languages + Con_Data$`Family Background` + Con_Data$Delay + Con_Data$`TA-ships` + Con_Data$`Employment during studies` + Con_Data$`Type of work`+ Con_Data$`Type of Education`)
+summary(multireg)
+
+
+# Regression with CGPA - Family background - Delay with income
+
+model1areg = lm(formula = Con_Data$Income ~ Con_Data$CGPA + Con_Data$`Family Background` + Con_Data$Delay)
+summary(model1areg)
+
+
+
+
+
+
+
+
+
+
+# Inconsistent Data
+
+
+
+
+
+
+# CGPA with Income
+
+firreg = lm(formula = Incon_Data$Income ~ Incon_Data$CGPA)
+summary(firreg)
+cor(Incon_Data$Income,Incon_Data$CGPA)
+
+plot(Incon_Data$Income ~ Incon_Data$CGPA , main = "CGPA with income",ylab = "Monthly Income", xlab = "CGPA", col = "Blue")
+abline(firreg)
+
+
+# Employment during studies with Income
+
+seccreg = lm(formula = Incon_Data$Income ~ Incon_Data$`Employment during studies`)
+summary(seccreg)
+cor(Incon_Data$Income,Incon_Data$`Employment during studies`)
+
+plot(Incon_Data$Income ~ Incon_Data$`Employment during studies` , main = "Employment during studies with Income",xlab = "Number of Employment during studies", ylab = "Monthly Income", col = "Blue")
+abline(seccreg)
+
+# TA-ships with Income
+
+thirddreg = lm(formula =  Incon_Data$Income ~ Incon_Data$`TA-ships`)
+summary(thirddreg)
+cor(Incon_Data$Income,Incon_Data$`TA-ships`)
+
+plot(Incon_Data$Income ~ Incon_Data$`TA-ships`, main = "TA-ships with income",xlab = "TA-ships", ylab = "Monthly Income", col = "Blue")
+abline(thirddreg)
+
+
+# Delay with Income
+
+fourreg = lm(formula =  Incon_Data$Income ~ Incon_Data$Delay)
+summary(fourreg)
+cor(Incon_Data$Income,Incon_Data$Delay)
+
+plot(Incon_Data$Income ~ Incon_Data$Delay, main = "Delay with income",xlab = "Delay", ylab = "Monthly Income", col = "Blue")
+abline(fourreg)
+
+
+
+# Family background with income
+sevvreg = lm(formula =  Incon_Data$Income ~ Incon_Data$`Family Background`)
+summary(sevvreg)
+cor(Incon_Data$Income,Incon_Data$`Family Background`)
+
+plot(Incon_Data$Income ~ Incon_Data$`Family Background`, main = "Type of family background with income",xlab = "Family background", ylab = "Monthly Income", col = "Blue")
+abline(sevvreg)
+
+# Languages with income
+
+eiggreg = lm(formula =  Incon_Data$Income ~ Incon_Data$Languages)
+summary(eiggreg)
+cor(Incon_Data$Income,Incon_Data$Languages)
+
+plot(Incon_Data$Income ~ Incon_Data$Languages, main = "Languages with income",xlab = "Number of Languages", ylab = "Monthly Income",  col = "Blue")
+abline(eiggreg)
+
+# MultiRegression
+
+multiireg = lm(formula = Incon_Data$Income ~ Incon_Data$CGPA + Incon_Data$Languages + Incon_Data$`Family Background` + Incon_Data$`Type of work` + Incon_Data$Delay + Incon_Data$`Type of Education` + Incon_Data$`TA-ships` + Incon_Data$`Employment during studies`)
+summary(multiireg)
+plot(multiireg)
+
+
+
+# Regression with CGPA - Family background - Delay with income
+
+model2areg = lm(formula = Incon_Data$Income ~ Incon_Data$CGPA + Incon_Data$`Family Background` + Incon_Data$Delay)
+summary(model2areg)
+
+
